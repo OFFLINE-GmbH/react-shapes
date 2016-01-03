@@ -58,6 +58,7 @@ export class Ellipse extends React.Component {
 
     }
 }
+
 export class Line extends React.Component {
     render() {
 
@@ -86,11 +87,9 @@ export class Polyline extends React.Component {
         var x = _.max(_.map(points,function(point){return point.x}));
         var y = _.max(_.map(points,function(point){return point.y}));
 
-        console.log(points);
-
         var height = y + (2 * strokeWidth);
         var width = x + (2 * strokeWidth);
-        console.log(height + ", " + width);
+
         var props = _.omit(this.props, 'style');
         return (
             <SVGComponent height={height} width={width}>
@@ -187,6 +186,56 @@ export class CornerBox extends React.Component {
                                         up={up}/>)
     }
 }
+
+export class Dimension extends React.Component {
+    render() {
+
+        var strokeWidth = this.props.strokeWidth || 0;
+
+        var height = (this.props.height || 0) + 2 * strokeWidth;
+        var width = (this.props.width || 0) + 2 * strokeWidth;
+
+        //var viewBox = [0,0,20,20].join(' ');
+
+        //var markerArrow = <marker viewBox={viewBox}  id="markerArrow" markerWidth={5} markerHeight={5}
+        //                     orient="auto">
+        //    <path d="M2,2 L2,11 L10,6 L2,2" style={{fill: '#000000'}} />
+        //</marker>;
+
+        //var markerSquare = <marker viewBox={viewBox} id="markerSquare" markerWidth={markerWidth} markerHeight={markerHeight}
+        //                          orient="auto">
+        //    <rect x="0" y="0" width={markerWidth} height={markerHeight} style={{stroke: 'none', fill:'#000000'}}/>
+        //</marker>;
+
+
+        var l = [strokeWidth,this.props.height];
+        var x = [strokeWidth,strokeWidth];
+        var y = [this.props.width,strokeWidth];
+        var r = [this.props.width,this.props.height];
+
+
+        var d= "M" + l.join(',') +  " L" + x.join(',') + " L" + y.join(', ') + " L" + r.join(', ');
+        //console.log(d);
+        var props = _.omit(this.props, 'style');
+
+        var style = {
+            strokeWidth: this.props.strokeWidth,
+            fill:'none',
+            stroke:this.props.stroke
+        };
+
+        return (
+            <SVGComponent height={height} width={width}>
+                <path style={style} d={d}></path>
+            </SVGComponent>)
+    }
+}
+
+var sharedFields = {
+    fill: {type: 'colorPicker'},
+    stroke: {type: 'colorPicker'},
+    strokeWidth: {type: 'number'}
+}
 var sharedShapeMetaData = {
     defaultColors: {
         fill: '#2409ba',
@@ -201,14 +250,21 @@ export default {
             props: _.extend({
                 width: 500,
                 height: 300
-            }, sharedShapeMetaData.defaultColors)
+            }, sharedShapeMetaData.defaultColors),
+            settings:{fields:_.extend({
+                width:{type:'number'},
+                height:{type:'number'}
+            },sharedFields)}
         }
     }),
     Circle: _.extend(Circle, {
         metaData: {
             props: _.extend({
                 r: 200
-            }, sharedShapeMetaData.defaultColors)
+            }, sharedShapeMetaData.defaultColors),
+            settings:{fields:_.extend({
+                r:{type:'number'},
+            },sharedFields)}
         }
     }),
     Ellipse: _.extend(Ellipse, {
@@ -216,7 +272,12 @@ export default {
             props: _.extend({
                 rx: 300,
                 ry: 100
-            }, sharedShapeMetaData.defaultColors)
+            }, sharedShapeMetaData.defaultColors),
+            settings:{fields:_.extend({
+                rx:{type:'number'},
+                ry:{type:'number'},
+            },sharedFields)}
+
         }
     }),
     Line: _.extend(Line, {
@@ -226,14 +287,21 @@ export default {
                 y1: 25,
                 x2: 350,
                 y2: 350
-            }, sharedShapeMetaData.defaultColors)
+            }, sharedShapeMetaData.defaultColors),
+            settings:{fields:_.extend({
+                x1:{type:'number'},
+                y1:{type:'number'},
+                x2:{type:'number'},
+                y2:{type:'number'},
+            },sharedFields)}
         }
     }),
     Polyline: _.extend(Polyline, {
         metaData: {
             props: _.extend({
                 points: '25,25 25,350 500,350 500,500 305,250 20,15'
-            }, sharedShapeMetaData.defaultColors)
+            }, sharedShapeMetaData.defaultColors),
+            settings:{fields:sharedFields}
         }
     }),
     Triangle: _.extend(Triangle, {
@@ -241,7 +309,11 @@ export default {
             props: _.extend({
                 width: 200,
                 height: 200,
-            }, sharedShapeMetaData.defaultColors)
+            }, sharedShapeMetaData.defaultColors),
+            settings:{fields:_.extend({
+                width:{type:'number'},
+                height:{type:'number'}
+            },sharedFields)}
         }
     }),
     CornerBox: _.extend(CornerBox, {
@@ -252,14 +324,14 @@ export default {
                 text: 'type your text',
                 orientation: 'topLeft'
             }, sharedShapeMetaData.defaultColors),
-            settings: {
-                fields: {
-                    orientation: {
-                        type: 'select',
-                        settings: {options: ['topRight', 'topLeft', 'bottomRight', 'bottomLeft']}
-                    }
+            settings:{fields:_.extend({
+                width:{type:'number'},
+                size:{type:'number'},
+                orientation: {
+                    type: 'select',
+                    settings: {options: ['topRight', 'topLeft', 'bottomRight', 'bottomLeft']}
                 }
-            }
+            },sharedFields)}
         }
     }),
     CornerLine: _.extend(CornerLine, {
@@ -271,7 +343,26 @@ export default {
                 x: 25,
                 y: 25,
                 up: false,
-            }, sharedShapeMetaData.defaultColors)
+            }, sharedShapeMetaData.defaultColors),
+            settings: {fields:_.extend({
+                width:{type:'number'},
+                size:{type:'number'},
+                x:{type:'number'},
+                y:{type:'number'},
+                up:{type:'boolean'},
+            },sharedFields)}
         }
-    })
+    }),
+    Dimension: _.extend(Dimension, {
+        metaData: {
+            props: _.extend({
+                width: 250,
+                height:100,
+            }, sharedShapeMetaData.defaultColors),
+            settings:{fields:_.extend({
+                width:{type:'number'},
+                height:{type:'number'},
+            },sharedFields)}
+        }
+    }),
 };
